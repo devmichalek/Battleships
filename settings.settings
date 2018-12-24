@@ -1,0 +1,18 @@
+#@ - setting
+## - ignores line
+#Wrong defined value causes undefined behaviour.
+
+#Who starts game? "tcl" or "perl"
+@FirstMove "tcl"
+
+#Time for each move "0ms < time < 5000ms"
+@TimeForMove "1000"
+
+#Enable Debug Information "true" or "false" or "1" or "0"
+@DebugMode "true"
+
+#Enable Action Information "true" or "false" or "1" or "0"
+@ActionMode "true"
+
+#Enable Character Information "true" or "false" or "1" or "0"
+@CharMode "true"
