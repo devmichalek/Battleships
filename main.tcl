@@ -25,9 +25,6 @@ set actionstr "Positioning ships..."
 # Prepares ships in the 2D array.
 proc Prepare {} {
 
-	# Set seed
-	#srand [clock seconds]
-
 	# Array of movements.
 	set movements {}
 	set ships {1 1 2 2 3 3 4 5}
@@ -45,12 +42,12 @@ proc Prepare {} {
 		set y -1
 
 		# Debugging
-		#puts "Count: $count"
+		if {$Sets::DebugMode} {puts "Count: $count"}
 		
 		while {$ship != 0} {
 
 			# Debugging
-			#puts "Left parts of ship: $ship"
+			if {$Sets::DebugMode} {puts "Left parts of ship: $ship"}
 
 			# Make first move.
 			if {$ship == [lindex $ships $next]} {
@@ -61,8 +58,10 @@ proc Prepare {} {
 					# Check if cell is occupied
 					if {[Cell::IsCellOccupied $x $y $::Cell::SEARCH_ALL $::area 0 [expr $::length]] == 0} {
 						lset ::area $x $y "T"
+
 						# Debugging.
-						#puts "\nOk: x:$x y:$y"
+						if {$Sets::DebugMode} {puts "\nAdded: x:$x y:$y"}
+
 						incr ship -1
 						break
 					}
@@ -81,7 +80,7 @@ proc Prepare {} {
 				set acts [lreplace $acts $nr $nr]
 
 				# Debugging
-				#puts "Making move, num: $num, nr: $nr, val: $val\tPosition x:$x y:$y"
+				if {$Sets::DebugMode} {puts "Making move, num: $num, nr: $nr, val: $val\tPosition x:$x y:$y"}
 
 				# Check if cell is occupied
 				if {[Cell::IsCellOccupied $x $y $val $::area 0 [expr $::length]] == 0} {
@@ -115,7 +114,7 @@ proc Prepare {} {
 				set acts $movements
 
 				# Debugging
-				#puts "----Reset----"
+				if {$Sets::DebugMode} {puts "----Reset----"}
 
 				for {set i 0} {$i < $::length} {incr i} {
 					for {set j 0} {$j < $::length} {incr j} {
@@ -123,7 +122,7 @@ proc Prepare {} {
 							lset ::area $i $j "."
 
 							# Debugging
-							#puts "Node i:$i j:$j removed."
+							if {$Sets::DebugMode} {puts "Node i:$i j:$j removed."}
 						}
 					}
 				}
@@ -137,7 +136,7 @@ proc Prepare {} {
 					lset ::area $i $j "S"
 
 					# Debugging
-					#puts "Node i:$i j:$j made pernament."
+					if {$Sets::DebugMode} {puts "Node i:$i j:$j made pernament."}
 				}
 			}
 		}
@@ -147,8 +146,8 @@ proc Prepare {} {
 	}
 }
 
-# make move
-proc turn {} {
+# Make move.
+proc calculate {} {
 
 }
 
@@ -182,6 +181,14 @@ while {!$::quit} {
 	if {$::state == $::PREPARING} {
 		Prepare
 		incr ::state
+	} elseif {$::state == $::PLAYING} {
+		if {$Sets::CurrentMove == $Sets::MOVE_WAITING} {
+			set ::actionstr "Waiting for opponent's move."
+
+		} elseif {$Sets::CurrentMove == $Sets::MOVE_ATTACKING} {
+			set ::actionstr "Calculating next move."
+
+		}
 	}
 
 	after $Sets::TimeForMove

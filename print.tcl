@@ -62,14 +62,10 @@ proc Supp::PrintLabel {actionstr} {
 	}
 }
 
-proc Supp::PrintGap {rows} {
-	for {set i 0} {$i < $rows} {incr i} {
-		puts ""
-	}
-}
-
 proc Supp::Print {a b max actionstr} {
-	eval exec >&@stdout <@stdin [auto_execok cls]
+	# Refreshing console window.
+	if {!$Sets::DebugMode} {eval exec >&@stdout <@stdin [auto_execok cls]}
+
 	PrintTitle
 	PrintDouble $a $b $max
 	PrintLabel $actionstr

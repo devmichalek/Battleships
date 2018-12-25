@@ -10,7 +10,7 @@ namespace eval Cell {
 # Position (x, y), 2D array, size of the array, character (to check).
 proc Cell::CheckUpWall {x y array2D size {seek "."}} {
 	# Debugging.
-	#puts "Cell::CheckUpWall()"
+	if {$Sets::DebugMode} {puts "Cell::CheckUpWall()"}
 
 	for {set i [expr $y-1]} {$i >= [expr $y-2]} {incr i -1} {
 		if {$i < 0}														{return 0}
@@ -24,7 +24,7 @@ proc Cell::CheckUpWall {x y array2D size {seek "."}} {
 # Position (x, y), 2D array, size of the array, character (to check).
 proc Cell::CheckDownWall {x y array2D size {seek "."}} {
 	# Debugging.
-	#puts "Cell::CheckDownWall()"
+	if {$Sets::DebugMode} {puts "Cell::CheckDownWall()"}
 
 	for {set i [expr $y+1]} {$i <= [expr $y+2]} {incr i} {
 		if {$i >= $size}												{return 0}
@@ -38,7 +38,7 @@ proc Cell::CheckDownWall {x y array2D size {seek "."}} {
 # Position (x, y), 2D array, size of the array, character (to check).
 proc Cell::CheckLeftWall {x y array2D size {seek "."}} {
 	# Debugging.
-	#puts "Cell::CheckLeftWall()"
+	if {$Sets::DebugMode} {puts "Cell::CheckLeftWall()"}
 
 	for {set i [expr $x-1]} {$i >= [expr $x-2]} {incr i -1} {
 		if {$i < 0}														{return 0}
@@ -52,7 +52,8 @@ proc Cell::CheckLeftWall {x y array2D size {seek "."}} {
 # Position (x, y), 2D array, size of the array, character (to check).
 proc Cell::CheckRightWall {x y array2D size {seek "."}} {
 	# Debugging.
-	#puts "Cell::CheckRightWall()"
+	if {$Sets::DebugMode} {puts "Cell::CheckRightWall()"}
+
 	for {set i [expr $x+1]} {$i <= [expr $x+2]} {incr i} {
 		if {$i < $size} {
 			if {$y-1 > 0 && [lindex $array2D $i [expr $y-1]] != "."}		{return 1}
@@ -65,7 +66,7 @@ proc Cell::CheckRightWall {x y array2D size {seek "."}} {
 
 proc Cell::CheckAllWalls {x y array2D size {seek "."}} {
 	# Debugging.
-	#puts "Cell::CheckAllWalls()"
+	if {$Sets::DebugMode} {puts "Cell::CheckAllWalls()"}
 
 	# top left, top middle, top right
 	if {$y > 0} {
@@ -99,8 +100,10 @@ proc Cell::IsCellOccupied {x y direction array2D min max {seek "."}} {
 	set r [CheckRightWall $x $y $array2D $max]
 
 	# Debugging.
-	#puts "X:$x Y:$y"
-	#puts "Direction: $direction All: $a, Up: $t, Down: $d, Left: $l, Right: $r"
+	if {$Sets::DebugMode} {
+		puts "Cell::IsCellOccupied() - X:$x Y:$y"
+		puts "Direction: $direction All: $a, Up: $t, Down: $d, Left: $l, Right: $r"
+	}
 
 	if {$direction == $Cell::SEARCH_TOP} {
 		return $t

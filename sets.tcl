@@ -34,8 +34,8 @@ proc Sets::Load {} {
 			append str "$var=$val\n"
 
 			if {$var == "@FirstMove"} {
-				if {$val == "tcl"} {
-					set ::CurrentMove $Sets::MOVE_ATTACKING
+				if {$val == {tcl}} {
+					set Sets::CurrentMove $Sets::MOVE_ATTACKING
 				}
 			} elseif {$var == "@TimeForMove"} {
 				set Sets::TimeForMove $val
