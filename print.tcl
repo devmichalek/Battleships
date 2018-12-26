@@ -54,7 +54,7 @@ proc Supp::PrintLabel {actionstr} {
 	if {$Sets::CharMode} {
 		puts "\nS - intact part of ship"
 		puts "X - drown part of ship"
-		puts "0 - mishit part of ship"
+		puts "0 - mishit part of ship or predicted empty area"
 	}
 
 	if {$Sets::ActionMode} {
