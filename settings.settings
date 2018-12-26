@@ -2,18 +2,18 @@
 ## - ignores line
 #Wrong defined value causes undefined behaviour.
 
-#Who starts game? "tcl" or "perl"
-@FirstMove "tcl"
+#Does computer start game?
+@FirstMove "false"
 
-#Time for each move "0ms < time < 5000ms"
+#Time for each move.
 @TimeForMove "1000"
 
-#Enable Debug Information "true" or "false" or "1" or "0"
+#Enable Debug Information.
 #Enabled Debug Information turns off refresh of console window.
 @DebugMode "0"
 
-#Enable Action Information "true" or "false" or "1" or "0"
+#Enable Action Information.
 @ActionMode "true"
 
-#Enable Character Information "true" or "false" or "1" or "0"
+#Enable Character Information.
 @CharMode "true"
