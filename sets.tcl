@@ -7,6 +7,7 @@ namespace eval Sets {
 	set DebugMode 0
 	set ActionMode 1
 	set CharMode 1
+	set FileName "move.txt"
 }
 
 proc Sets::GetBooleanValue {str} {
@@ -45,6 +46,8 @@ proc Sets::Load {} {
 				set Sets::ActionMode [GetBooleanValue $val]
 			} elseif {$var == "@CharMode"} {
 				set Sets::CharMode [GetBooleanValue $val]
+			} elseif {$var == "@FileName"} {
+				set Sets::FileName $val
 			}
 		}
 	}
