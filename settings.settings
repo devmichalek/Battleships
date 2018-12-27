@@ -6,14 +6,17 @@
 @FirstMove "false"
 
 #Time for each move.
-@TimeForMove "1000"
+@TimeForMove "200"
 
 #Enable Debug Information.
 #Enabled Debug Information turns off refresh of console window.
-@DebugMode "0"
+@DebugMode "false"
 
 #Enable Action Information.
 @ActionMode "true"
 
 #Enable Character Information.
 @CharMode "true"
+
+#Medium for scripts.
+@FileName "move.txt"
