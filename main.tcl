@@ -22,6 +22,22 @@ set length 10
 set actionstr "Positioning ships..."
 set endgame 0
 
+proc ReadFromFile {filepath} {
+	set file [open $filepath r]
+	set data [read $file]
+	close $file
+	return $data
+}
+
+proc ClearFile {filepath} {
+	close [open $filepath w]
+}
+
+proc WriteToFile {filepath data} {
+	set file [open $filepath w]
+	puts $file $data
+	close $file
+}
 
 # Prepares ships in the 2D array.
 proc Prepare {} {
@@ -148,48 +164,103 @@ proc Prepare {} {
 }
 
 # Make move.
-set sx -1
-set sy -1
 set cx -1
 set cy -1
 set made 0
 set washit 0
 proc Calculate {} {
-	set file [open "move.txt" r]
-	set data [read $file]
-	close $file
-
-	if {[llength $data] == 0} {return 0}
-	set str [lindex $data 0]
 
 	# Make move.
 	if {$::made == 0} {
-		# Make totally new move.
-		if {$::washit == 0 && $::sx == -1 && $::sy == -1} {
-			
-		} else {
+		if {!$::washit} {
+			# Make totally new move.
+			set xlist ""
+			set ylist ""
+			for {set i 0} {$i < $::length} {incr i} {
+				for {set j 0} {$j < $::length} {incr j} {
+					if {[lindex $::field $i $j] == "."} {
+						append xlist $i " "
+						append ylist $j " "
+					}
+				}
+			}
 
+			set lnr [expr {int(rand() * [llength $xlist])}]
+
+			# cx, cy
+			set ::cx [lindex $xlist $lnr]
+			set ::cy [lindex $ylist $lnr]
+			set tmp [format %c [expr $::cy + 65]]
+
+			# Write to file.
+			WriteToFile $Sets::FileName "$::cx$tmp"
+			unset xlist
+			unset ylist
+		} else {
+			for {set i 0} {$i < $::length} {incr i} {
+				for {set j 0} {$j < $::length} {incr j} {
+					if {[lindex $::field $i $j] == "K"} {
+
+						set seek "."
+						set il [expr $i-1]
+						set im [expr $i+1]
+						set jl [expr $j-1]
+						set jm [expr $j+1]
+						set movements ""
+						set ::cx $i
+						set ::cy $j
+
+						if {$j > 0 && [lindex $::field $i $jl] == $seek} {append movements $::Cell::SEARCH_TOP " "}
+						if {$i > 0 && [lindex $::field $il $j] == $seek} {append movements $::Cell::SEARCH_LEFT " "}
+						if {$j < [expr $::length -1] && [lindex $::field $i $jm] == $seek} {append movements $::Cell::SEARCH_BOT " "}
+						if {$i < [expr $::length -1] && [lindex $::field $im $j] == $seek} {append movements $::Cell::SEARCH_RIGHT " "}
+
+						if {[llength $movements] > 0} {
+							set lnr [expr {int(rand() * [llength $movements])}]
+							set choice [lindex $movements $lnr]
+							if {$choice == $::Cell::SEARCH_TOP} {
+								set ::cy [expr $j - 1]
+							} elseif {$choice == $::Cell::SEARCH_LEFT} {
+								set ::cx [expr $i - 1]
+							} elseif {$choice == $::Cell::SEARCH_BOT} {
+								set ::cy [expr $j + 1]
+							} elseif {$choice == $::Cell::SEARCH_RIGHT} {
+								set ::cx [expr $i + 1]
+							}
+
+							# Write to file.
+							set tmp [format %c [expr $::cy + 65]]
+							WriteToFile $Sets::FileName "$::cx$tmp"
+
+							set ::made 1
+							return 0
+						}
+					}
+				}
+			}
 		}
+
+		set ::made 1
+		return 0
 	}
 
+	# Read data from file.
+	set data [ReadFromFile $Sets::FileName]
+	if {[llength $data] == 0} {return 0}
+	set str [lindex $data 0]
+
 	if {$str == "hit"} {
-
-		# Set first hit x y position
-		if {$::sx == -1 && $::sy == -1} {
-			set ::sx $::cx
-			set ::sy $::cy
-		}
-
 		# Mark drown part of enemy's ship.
-		lset ::field $::cx $::cy "X"
+		lset ::field $::cx $::cy "K"
 
 		set ::washit 1
 		set ::made 0
+		ClearFile $Sets::FileName
 		return 1
 	} elseif {$str == "mishit"} {
 		lset ::field $::cx $::cy "0"
-		set ::washit 0
 		set ::made 0
+		ClearFile $Sets::FileName
 		return 1
 	} elseif {$str == "drown"} {
 		# Mark drown part of enemy's ship.
@@ -198,40 +269,46 @@ proc Calculate {} {
 		# Make "frame"
 		for {set i 0} {$i < $::length} {incr i} {
 			for {set j 0} {$j < $::length} {incr j} {
+				if {[lindex $::field $i $j] == "K"} {lset ::field $i $j "X"}
 				if {[lindex $::field $i $j] == "X"} {
+
+					set seek "."
+					set il [expr $i-1]
+					set im [expr $i+1]
+					set jl [expr $j-1]
+					set jm [expr $j+1]
+
 					# Left
 					if {$i > 0} {
-						set val [expr $i-1]
-						if {$j > 0 && [lindex $::field $val [expr $j-1]] != "X"} {lset ::field $val [expr $j-1] "0"}
-						if {[lindex $::field $val $j] != "X"} {lset ::field $val $j "0"}
-						if {$j < [expr $::length-1] && [lindex $::field $val [expr $j+1]] != "X"} {lset ::field $val [expr $j+1] "0"}
+						if {$j > 0 && [lindex $::field $il $jl] == $seek}					{lset ::field $il $jl "0"}
+						if {[lindex $::field $il $j] == $seek}								{lset ::field $il $j "0"}
+						if {$j < [expr $::length-1] && [lindex $::field $il $jm] == $seek}	{lset ::field $il $jm "0"}
 					}
 
 					# Right
 					if {$i < [expr $::length-1]} {
-						set val [expr $i+1]
-						if {$j > 0 && [lindex $::field $val [expr $j-1]] != "X"} {lset ::field $val [expr $j-1] "0"}
-						if {[lindex $::field $val $j] != "X"} {lset ::field $val $j "0"}
-						if {$j < [expr $::length-1] && [lindex $::field $val [expr $j+1]] != "X"} {lset ::field $val [expr $j+1] "0"}
+						if {$j > 0 && [lindex $::field $im $jl] == $seek}					{lset ::field $im $jl "0"}
+						if {[lindex $::field $im $j] == $seek}								{lset ::field $im $j "0"}
+						if {$j < [expr $::length-1] && [lindex $::field $im $jm] == $seek}	{lset ::field $im $jm "0"}
 					}
 
 					# Middle
-					if {$j > 0 && [lindex $::field $i [expr $j-1]] != "X"} {lset ::field $i [expr $j-1] "0"}
-					if {$j < [expr $::length-1] && [lindex $::field $i [expr $j+1]] != "X"} {lset ::field $i [expr $j+1] "0"}
+					if {$j > 0 && [lindex $::field $i $jl] == $seek}					{lset ::field $i $jl "0"}
+					if {$j < [expr $::length-1] && [lindex $::field $i $jm] == $seek}	{lset ::field $i $jm "0"}
 				}
 			}
 		}
 
 		# Reset.
-		set ::sx -1
-		set ::sy -1
 		set ::washit 0
 		set ::made 0
+		ClearFile $Sets::FileName
 		return 1
 	} elseif {$str == "defeat"} {
 		set ::endgame 1
 		set ::actionstr "Battle is won. Victory."
 		set ::made 0
+		ClearFile $Sets::FileName
 		return 1
 	}
 
@@ -242,9 +319,7 @@ proc Calculate {} {
 # Wait for enemy's move
 set lastMove ""
 proc Wait {} {
-	set file [open "move.txt" r]
-	set data [read $file]
-	close $file
+	set data [ReadFromFile $Sets::FileName]
 
 	if {[llength $data] != 1} {
 		return 0
@@ -258,9 +333,9 @@ proc Wait {} {
 	}
 
 	if {[string length $str] == 2} {
-		if {$lastMove == "" || $lastMove != $str} {
+		if {$::lastMove == "" || $::lastMove != $str} {
 			# Set last move.
-			set lastMove $str
+			set ::lastMove $str
 
 			# 0...9 - x
 			# A...J - y
@@ -275,16 +350,41 @@ proc Wait {} {
 			}
 
 			# Check if ship got hit.
-			if {[lindex $area $x $y] == "S"} {
+			if {[lindex $::area $x $y] == "S"} {
 
 				# Mark it.
 				lset ::area $x $y "X"
 
+				set floatingParts 0
 				set leftShips 0
 				for {set i 0} {$i < $::length} {incr i} {
 					for {set j 0} {$j < $::length} {incr j} {
 						if {[lindex $::area $i $j] == "S"} {
 							incr leftShips
+
+							set seek "X"
+							set il [expr $i-1]
+							set im [expr $i+1]
+							set jl [expr $j-1]
+							set jm [expr $j+1]
+
+							# Left
+							if {$i > 0} {
+								if {$j > 0 && [lindex $::area $il $jl] == $seek}					{incr floatingParts}
+								if {[lindex $::area $il $j] == $seek}								{incr floatingParts}
+								if {$j < [expr $::length-1] && [lindex $::area $il $jm] == $seek}	{incr floatingParts}
+							}
+
+							# Right
+							if {$i < [expr $::length-1]} {
+								if {$j > 0 && [lindex $::area $im $jl] == $seek}					{incr floatingParts}
+								if {[lindex $::area $im $j] == $seek}								{incr floatingParts}
+								if {$j < [expr $::length-1] && [lindex $::area $im $jm] == $seek}	{incr floatingParts}
+							}
+
+							# Middle
+							if {$j > 0 && [lindex $::area $i $jl] == $seek}					{incr floatingParts}
+							if {$j < [expr $::length-1] && [lindex $::area $i $jm] == $seek}	{incr floatingParts}
 						}
 					}
 				}
@@ -294,19 +394,20 @@ proc Wait {} {
 					set ::endgame 1
 					set ::actionstr "Got failed in a battle. Surrender."
 
-					set file [open "move.txt" w+]
-					puts $file "defeat"
-					close $file
+					WriteToFile $Sets::FileName "defeat"
+				} elseif {$floatingParts == 0} {
+					WriteToFile $Sets::FileName "drown"
+				} else {
+					WriteToFile $Sets::FileName "hit"
 				}
-
-				# Is ship drown?
-
-
-				return 0
 			} else {
-				set file [open "move.txt" w+]
-				puts $file "mishit"
-				close $file
+				WriteToFile $Sets::FileName "mishit"
+			}
+
+			while {1} {
+				set data [ReadFromFile $Sets::FileName]
+				if {$data == ""} {break}
+				after $Sets::TimeForMove
 			}
 
 			return 1
@@ -345,7 +446,7 @@ while {!$::quit} {
 				set Sets::CurrentMove $Sets::MOVE_ATTACKING
 			}
 		} elseif {$Sets::CurrentMove == $Sets::MOVE_ATTACKING} {
-			set ::actionstr "Calculating next move..."
+			set ::actionstr "Making next move..."
 			if {[Calculate]} {
 				set Sets::CurrentMove $Sets::MOVE_WAITING
 			}
