@@ -306,7 +306,7 @@ proc Calculate {} {
 		return 1
 	} elseif {$str == "defeat"} {
 		set ::endgame 1
-		set ::actionstr "Battle is won. Victory."
+		set ::actionstr "\033\[32mBattle is won. Victory.\033\[0m"
 		set ::made 0
 		ClearFile $Sets::FileName
 		return 1
@@ -392,7 +392,7 @@ proc Wait {} {
 				# Defeat
 				if {$leftShips == 0} {
 					set ::endgame 1
-					set ::actionstr "Got failed in a battle. Surrender."
+					set ::actionstr "\033\[31mGot failed in a battle. Surrender.\033\[0m"
 
 					WriteToFile $Sets::FileName "defeat"
 				} elseif {$floatingParts == 0} {

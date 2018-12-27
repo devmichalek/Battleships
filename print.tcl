@@ -1,6 +1,18 @@
 
 namespace eval Supp {}
 
+proc MakeColorForValue {value} {
+	if {$value == "S"} {
+		puts -nonewline "\033\[32m"
+	} elseif {$value == "X" || $value == "K"} {
+		puts -nonewline "\033\[31m"
+	} else {
+		puts -nonewline "\033\[33m"
+	}
+	puts -nonewline $value
+	puts -nonewline "\033\[0m"
+}
+
 proc Supp::PrintTitle {} {
 	puts "MINE\t\t\t    ENEMY\n"
 }
@@ -18,35 +30,33 @@ proc Supp::PrintDouble {a b max} {
 		append str "[format %c $i $i] "
 	}
 	puts $str
-	set str ""
 
 	for {set i 0} {$i < $max} {incr i} {
 
 		# 0...9
-		append str $i
-		append str " "
+		puts -nonewline $i
+		puts -nonewline " "
 
 		# data
 		for {set j 0} {$j < $max} {incr j} {
-			append str [lindex $a $i $j]
-			append str " "
+			MakeColorForValue [lindex $a $i $j]
+			puts -nonewline " "
 		}
 
 		# gap
-		append str "  |   "
+		puts -nonewline "  |   "
 
 		# 0...9
-		append str $i
-		append str " "
+		puts -nonewline $i
+		puts -nonewline " "
 
 		# data
 		for {set j 0} {$j < $max} {incr j} {
-			append str [lindex $b $i $j]
-			append str " "
+			MakeColorForValue [lindex $b $i $j]
+			puts -nonewline " "
 		}
 
-		puts $str
-		set str ""
+		puts ""
 	}
 }
 
