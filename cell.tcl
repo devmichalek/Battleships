@@ -7,84 +7,68 @@ namespace eval Cell {
 	set SEARCH_RIGHT 3
 }
 
-# Position (x, y), 2D array, size of the array, character (to check).
 proc Cell::CheckUpWall {x y array2D size {seek "."}} {
-	# Debugging.
-	if {$Sets::DebugMode} {puts "Cell::CheckUpWall()"}
-
 	for {set i [expr $y-1]} {$i >= [expr $y-2]} {incr i -1} {
-		if {$i < 0}														{return 0}
-		if {$x-1 > 0 && [lindex $array2D [expr $x-1] $i] != "."}		{return 1}
-		if {[lindex $array2D $x $i] != "."}								{return 1}
-		if {$x+1 < $size && [lindex $array2D [expr $x+1] $i] != "."}	{return 1}
+		if {$i >= 0} {
+			if {$x-1 >= 0 && [lindex $array2D [expr $x-1] $i] != $seek}		{return 1}
+			if {[lindex $array2D $x $i] != $seek}							{return 1}
+			if {$x+1 < $size && [lindex $array2D [expr $x+1] $i] != $seek}	{return 1}
+		}
 	}
 	return 0
 }
 
-# Position (x, y), 2D array, size of the array, character (to check).
 proc Cell::CheckDownWall {x y array2D size {seek "."}} {
-	# Debugging.
-	if {$Sets::DebugMode} {puts "Cell::CheckDownWall()"}
-
 	for {set i [expr $y+1]} {$i <= [expr $y+2]} {incr i} {
-		if {$i >= $size}												{return 0}
-		if {$x-1 > 0 && [lindex $array2D [expr $x-1] $i] != "."}		{return 1}
-		if {[lindex $array2D $x $i] != "."}								{return 1}
-		if {$x+1 < $size && [lindex $array2D [expr $x+1] $i] != "."} 	{return 1}
+		if {$i < $size} {
+			if {$x-1 >= 0 && [lindex $array2D [expr $x-1] $i] != $seek}		{return 1}
+			if {[lindex $array2D $x $i] != $seek}							{return 1}
+			if {$x+1 < $size && [lindex $array2D [expr $x+1] $i] != $seek} 	{return 1}
+		}
 	}
 	return 0
 }
 
-# Position (x, y), 2D array, size of the array, character (to check).
 proc Cell::CheckLeftWall {x y array2D size {seek "."}} {
-	# Debugging.
-	if {$Sets::DebugMode} {puts "Cell::CheckLeftWall()"}
-
 	for {set i [expr $x-1]} {$i >= [expr $x-2]} {incr i -1} {
-		if {$i < 0}														{return 0}
-		if {$y-1 > 0 && [lindex $array2D $i [expr $y-1]] != "."} 		{return 1}
-		if {[lindex $array2D $i $y] != "."} 							{return 1}
-		if {$y+1 < $size && [lindex $array2D $i [expr $y+1]] != "."}	{return 1}
+		if {$i >= 0} {
+			if {$y-1 >= 0 && [lindex $array2D $i [expr $y-1]] != $seek} 	{return 1}
+			if {[lindex $array2D $i $y] != $seek} 							{return 1}
+			if {$y+1 < $size && [lindex $array2D $i [expr $y+1]] != $seek}	{return 1}
+		}
 	}
 	return 0
 }
 
-# Position (x, y), 2D array, size of the array, character (to check).
 proc Cell::CheckRightWall {x y array2D size {seek "."}} {
-	# Debugging.
-	if {$Sets::DebugMode} {puts "Cell::CheckRightWall()"}
-
 	for {set i [expr $x+1]} {$i <= [expr $x+2]} {incr i} {
 		if {$i < $size} {
-			if {$y-1 > 0 && [lindex $array2D $i [expr $y-1]] != "."}		{return 1}
-			if {[lindex $array2D $i $y] != "."}								{return 1}
-			if {$y+1 < $size && [lindex $array2D $i [expr $y+1]] != "."}	{return 1}
+			if {$y-1 >= 0 && [lindex $array2D $i [expr $y-1]] != $seek}		{return 1}
+			if {[lindex $array2D $i $y] != $seek}							{return 1}
+			if {$y+1 < $size && [lindex $array2D $i [expr $y+1]] != $seek}	{return 1}
 		}
 	}
 	return 0
 }
 
 proc Cell::CheckAllWalls {x y array2D size {seek "."}} {
-	# Debugging.
-	if {$Sets::DebugMode} {puts "Cell::CheckAllWalls()"}
-
 	# top left, top middle, top right
 	if {$y > 0} {
-		if {$x > 0 && [lindex $array2D [expr $x-1] [expr $y-1]] != "."}			{return 1}
-		if {[lindex $array2D $x [expr $y-1]] != "."}							{return 1}
-		if {$x < $size-1 && [lindex $array2D [expr $x+1] [expr $y-1]] != "."}	{return 1}
+		if {$x > 0 && [lindex $array2D [expr $x-1] [expr $y-1]] != $seek}		{return 1}
+		if {[lindex $array2D $x [expr $y-1]] != $seek}							{return 1}
+		if {$x < $size-1 && [lindex $array2D [expr $x+1] [expr $y-1]] != $seek}	{return 1}
 	}
 
 	# left middle, middle, right middle
-	if {$x > 0 && [lindex $array2D [expr $x-1] $y] != "."}			{return 1}
+	if {$x > 0 && [lindex $array2D [expr $x-1] $y] != $seek}		{return 1}
 	if {[lindex $array2D $x $y] != $seek}							{return 1}
-	if {$x < $size-1 && [lindex $array2D [expr $x+1] $y] != "."}	{return 1}
+	if {$x < $size-1 && [lindex $array2D [expr $x+1] $y] != $seek}	{return 1}
 
 	# bot left, bot middle, bot right
 	if {$y < $size-1} {
-		if {$x > 0 && [lindex $array2D [expr $x-1] [expr $y+1]] != "."}			{return 1}
-		if {[lindex $array2D $x [expr $y+1]] != "."}							{return 1}
-		if {$x < $size-1 && [lindex $array2D [expr $x+1] [expr $y+1]] != "."}	{return 1}
+		if {$x > 0 && [lindex $array2D [expr $x-1] [expr $y+1]] != $seek}		{return 1}
+		if {[lindex $array2D $x [expr $y+1]] != $seek}							{return 1}
+		if {$x < $size-1 && [lindex $array2D [expr $x+1] [expr $y+1]] != $seek}	{return 1}
 	}
 
 	# success
